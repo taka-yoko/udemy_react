@@ -2,4 +2,7 @@ $background-color: #eee;
 
 body {
   background-color: $background-color;
+  text-align: center;
 }
+
+@import 'GeocodeResult';
