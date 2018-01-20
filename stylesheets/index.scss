@@ -2,7 +2,10 @@ $background-color: #eee;
 
 body {
   background-color: $background-color;
-  text-align: center;
 }
 
+@import 'reset';
+@import 'App';
 @import 'GeocodeResult';
+@import 'Map';
+@import 'Searchform';

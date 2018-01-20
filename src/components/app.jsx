@@ -1,66 +1,66 @@
 import React, { Component } from 'react';
-import axios from 'axios';
 
 import SearchForm from './SearchForm';
 import GeocodeResult from './GeocodeResult';
+import Map from './Map';
 
-const GEOCODE_ENDPOINT = 'https://maps.googleapis.com/maps/api/geocode/json';
+import { geocode } from '../domain/Geocoder';
 
 class App extends Component {
   constructor(props) {
     super(props);
     this.state = {
+      location: {
+        lat: 35.6585805,
+        lng: 139.7454329,
+      },
     };
   }
 
-  setMessage(message) {
+  setErrorMessage(message) {
     this.setState({
       address: message,
-      lat: 0,
-      lng: 0,
+      location: {
+        lat: 0,
+        lng: 0,
+      },
     });
   }
 
   handlePlaceSubmit(place) {
-    axios.get(GEOCODE_ENDPOINT, { params: { address: place } })
-      .then((results) => {
-        const result = results.data.results[0];
-        const status = results.data.status;
-        switch(status) {
-          case 'OK': {
-            const location = result.geometry.location;
-            this.setState({
-              address: result.formatted_address,
-              lat: location.lat,
-              lng: location.lng,
-            });
-            break;
+    geocode(place)
+      .then(({ status, address, location }) => {
+          switch(status) {
+            case 'OK': {
+              this.setState({ address, location });
+              break;
+            }
+            case 'ZERO_RESULTS': {
+              this.setErrorMessage('結果が見つかりませんでした');
+              break;
+            }
+            default: {
+              this.setErrorMessage('エラーが発生しました');
+            }
           }
-          case 'ZERO_RESULTS': {
-            this.setMessage('結果が見つかりませんでした');
-            break;
-          }
-          default: {
-            this.setMessage('エラーが発生しました');
-            break;
-          }
-        } 
       })
-      .catch((error) => {
-        this.setMessage('通信エラーが発生しました');
-      })
+      .catch(() => {
+        this.setErrorMessage('通信に失敗しました');
+      });
   }
 
   render() {
     return (
-      <div>
-        <h1>緯度経度検索</h1>
+      <div className="app">
+        <h1 className="app-title">ホテル検索</h1>
         <SearchForm onSubmit={place => this.handlePlaceSubmit(place)} />
-        <GeocodeResult
-          address={this.state.address}
-          lat={this.state.lat}
-          lng={this.state.lng}
-        />
+        <div className="result-area">
+          <Map location={this.state.location} />
+          <GeocodeResult
+            address={this.state.address}
+            location={this.state.location}
+          />
+        </div>
       </div>
     );
   }
