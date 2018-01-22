@@ -9,7 +9,10 @@ import HotelsTable from './HotelsTable';
 import { geocode } from '../domain/Geocoder';
 import { searchHotelByLocation } from '../domain/HotelRepository';
 
-const sortedHotels = (hotels, sortKey) => _.sortBy(hotels, [sortKey]);
+const sortedHotels = (hotels, sortKey, isAsc) => {
+  const order = isAsc ? 'asc' : 'desc';
+  return _.orderBy(hotels, [sortKey], [order]);
+};
 
 class App extends Component {
   constructor(props) {
@@ -20,6 +23,7 @@ class App extends Component {
         lng: 139.7454329,
       },
       sortKey: 'price',
+      isAsc: true,
     };
   }
 
@@ -60,9 +64,14 @@ class App extends Component {
   }
 
   handleSortKeyChange(sortKey) {
+    if (sortKey === this.state.sortKey) {
+      this.state.isAsc = !this.state.isAsc;
+    } else {
+      this.state.isAsc = true;
+    }
     this.setState({
       sortKey,
-      hotels: sortedHotels(this.state.hotels, sortKey),
+      hotels: sortedHotels(this.state.hotels, sortKey, this.state.isAsc),
     });
   }
 
@@ -83,6 +92,7 @@ class App extends Component {
               hotels={this.state.hotels}
               onSort={sortKey => this.handleSortKeyChange(sortKey)}
               sortKey={this.state.sortKey}
+              isAsc={this.state.isAsc}
             />
           </div>
         </div>
