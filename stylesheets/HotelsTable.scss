@@ -1,5 +1,9 @@
-.hotel-price-column {
-  min-width: 70px;
+.hotels-clickable-th {
+  min-width: 100px;
+  color: blue;
+  &:hover {
+    cursor: pointer;
+  }
 }
 
 td {
